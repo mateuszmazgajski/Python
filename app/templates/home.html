@@ -1,0 +1,25 @@
+<!-- app/templates/home.html -->
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block header %}Home{% endblock %}
+
+{% block content %}
+    <div class="container text-center mt-5">
+        {% if current_user.is_authenticated %}
+            <p>Welcome, {{ current_user.username }}!</p>
+            <p><a class="btn btn-primary" href="{{ url_for('book_office') }}">Book an Office</a></p>
+            {% if current_user.username == 'admin' %}
+                <p><a class="btn btn-dark" href="{{ url_for('all_bookings') }}">All bookings</a></p>
+            {% endif %}    
+            <p><a class="btn btn-secondary" href="{{ url_for('my_bookings') }}">My bookings</a></p>
+            <p><a class="btn btn-danger" href="{{ url_for('logout') }}">Logout</a></p>
+        {% else %}
+            <p>Welcome !</p>
+            <p><a class="btn btn-primary" href="{{ url_for('login') }}">Login</a></p>
+            <p>Don't have account yet ?</p>
+            <p><a class="btn btn-primary" href="{{ url_for('signup') }}">Sign up</a></p>
+        {% endif %}
+    </div>
+{% endblock %}

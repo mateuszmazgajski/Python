@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings{% endblock %}
+
+{% block header %}My Bookings{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center">My Bookings</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered mx-auto text-center" style="width: auto;">
+                <colgroup>
+                    <col style="width: auto;">
+                    <col style="width: auto;">
+                    <col style="width: auto;">
+                    <col style="width: 20%;">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th scope="col">Office</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.office }}</td>
+                            <td>{{ booking.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ booking.start_time.strftime('%H:%M') }}</td>
+                            <td>
+                                {% if booking.date > current_date or (booking.date == current_date and booking.start_time > current_time) %}
+                                    <form method="post" action="{{ url_for('remove_my_booking', booking_id=booking.id) }}">
+                                        <button type="submit" class="btn btn-danger">Remove</button>
+                                    </form>
+                                {% else %}
+                                    <!-- Show some message or leave it empty for past bookings -->
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-center mt-3"><a href="{{ url_for('home') }}">Go back to Home</a></p>
+    </div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}All Bookings{% endblock %}
+
+{% block header %}All Bookings{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>All Bookings</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Office</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Timestamp</th>
+                    <th>Action</th> <!-- New column for Remove button -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.office }}</td>
+                        <td>{{ booking.date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ booking.start_time.strftime('%H:%M:%S') }}</td>
+                        <td>{{ booking.user.username }}</td>
+                        <td>{{ booking.timestamp }}</td>
+                        <td>
+                            <form method="post" action="{{ url_for('remove_booking', booking_id=booking.id) }}">
+                                <button type="submit" class="btn btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p><a class="btn btn-primary" href="{{ url_for('home') }}">Go back to Home</a></p>
+    </div>
+{% endblock %}

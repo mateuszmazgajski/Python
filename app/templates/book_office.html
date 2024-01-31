@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Office{% endblock %}
+
+{% block header %}Book Office{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <p class="text-center">Welcome, {{ current_user.username }}!</p>
+        <form method="post" action="{{ url_for('book_office') }}" class="mx-auto" style="max-width: 400px;">
+            {{ form.csrf_token }}
+
+            <div class="form-group">
+                <label>Select an office:</label>
+                <div class="btn-group d-flex justify-content-center" id="officeButtons">
+                    {% for office in form.office_choices %}
+                        <button type="button" class="btn btn-outline-primary office-btn {% if form.office.data == office %}active{% endif %}" value="{{ office }}">
+                            {{ office }}
+                        </button>
+                    {% endfor %}
+                </div>
+                <!-- Add hidden input to store selected office -->
+                <input type="hidden" name="selected_office" id="selectedOfficeInput" value="{{ form.office.data }}">
+            </div>
+
+            <div class="form-group">
+                <label for="date">Select date:</label>
+                {{ form.date(class="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <label>Select hour:</label>
+                <div class="start-time-container text-center" data-toggle="buttons">
+                    <div class="btn-group d-flex justify-content-center">
+                        {% for hour in form.start_time.choices %}
+                            <label class="btn btn-outline-primary">
+                                <input type="radio" name="start_time" value="{{ hour[0] }}" autocomplete="off">
+                                {{ hour[1] }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Book</button>
+            </div>
+        </form>
+        <p class="text-center mt-3"><a href="{{ url_for('home') }}">Go back to Home</a></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var officeButtonsContainer = document.getElementById('officeButtons');
+            var dateInput = document.getElementById('date');
+
+            function updateAvailableHours(selectedOffice) {
+                // Fetch available hours from the server based on the selected office and date
+                fetch(`/get_available_hours?office=${selectedOffice}&date=${dateInput.value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Received data:', data);
+                        // Update the content of the start time container
+                        updateStartTimeContainer(data.available_hours);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                    });
+            }
+
+            function handleOfficeSelection(event) {
+                var selectedOffice = event.target.value;
+                //console.log('Office button clicked:', selectedOffice);
+
+                // Remove 'active' class from all office buttons
+                officeButtonsContainer.querySelectorAll('.office-btn').forEach(function (button) {
+                    button.classList.remove('active');
+                });
+
+                // Add 'active' class to the clicked office button
+                event.target.classList.add('active');
+
+                // Set the value of the hidden input field
+                document.getElementById('selectedOfficeInput').value = selectedOffice;
+
+                // Perform actions when an office button is clicked
+                // ...
+
+                // Update available hours
+                updateAvailableHours(selectedOffice);
+            }
+
+            function updateStartTimeContainer(availableHours) {
+                var startTimeContainer = document.querySelector('.start-time-container');
+
+                if (startTimeContainer) {
+                    // Convert the available hours data to HTML buttons
+                    var buttonsHTML = availableHours.map(hour => {
+                        
+                        return `<label class="btn btn-outline-primary">
+                                    <input type="radio" name="start_time" value="${hour[0]}" autocomplete="off">
+                                    ${hour[1]}
+                                </label>`;
+                    }).join('');
+
+                    startTimeContainer.innerHTML = buttonsHTML;
+                } else {
+                    console.log('startTimeContainer not found.');
+                }
+            }
+
+            // Add event listener to the parent container of office buttons for click events
+            officeButtonsContainer.addEventListener('click', function (event) {
+                if (event.target.classList.contains('office-btn')) {
+                    handleOfficeSelection(event);
+                }
+            });
+
+            // Add event listener to update available hours when the date changes
+            dateInput.addEventListener('input', function () {
+                var checkedOfficeButton = officeButtonsContainer.querySelector('.office-btn.active');
+                if (checkedOfficeButton) {
+                    updateAvailableHours(checkedOfficeButton.value);
+                }
+            });
+
+            // Initial update when the page loads
+            var checkedOfficeButton = officeButtonsContainer.querySelector('.office-btn.active');
+            if (checkedOfficeButton) {
+                updateAvailableHours(checkedOfficeButton.value);
+            }
+        });
+    </script>
+
+{% endblock %}
