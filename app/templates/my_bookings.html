@@ -26,10 +26,10 @@
                 <tbody>
                     {% for booking in bookings %}
                         <tr>
-                            <td>{{ booking.office }}</td>
-                            <td>{{ booking.date.strftime('%Y-%m-%d') }}</td>
-                            <td>{{ booking.start_time.strftime('%H:%M') }}</td>
-                            <td>
+                            <td class="align-middle">{{ booking.office }}</td>
+                            <td class="align-middle">{{ booking.date.strftime('%Y-%m-%d') }}</td>
+                            <td class="align-middle">{{ booking.start_time.strftime('%H:%M') }}</td>
+                            <td class="align-middle">
                                 {% if booking.date > current_date or (booking.date == current_date and booking.start_time > current_time) %}
                                     <form method="post" action="{{ url_for('remove_my_booking', booking_id=booking.id) }}">
                                         <button type="submit" class="btn btn-danger">Remove</button>
