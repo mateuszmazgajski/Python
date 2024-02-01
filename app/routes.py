@@ -131,10 +131,8 @@ def remove_my_booking(booking_id):
 def get_available_hours():
     selected_office = request.args.get('office')
     selected_date = request.args.get('date')
-
     # Call your existing function to get available hours
     available_hours = calculate_available_hours(selected_office, selected_date)
-    #print(available_hours)
 
     # Return the available hours as JSON
     return jsonify({'available_hours': available_hours})

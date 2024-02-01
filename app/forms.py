@@ -41,16 +41,18 @@ class BookingForm(FlaskForm):
 def calculate_available_hours(selected_office, selected_date):
 
     # Calculate the current date
-    current_date = date.today()
-
+    now = date.today()
+    current_date = now.strftime('%Y-%m-%d')
     # Check if the selected date is the current date
     if selected_date == current_date:
         # If the selected date is the current date, get the current time
         current_time = datetime.now().time()
+        start_hour = int(current_time.strftime('%H')) + 1
         # Use the current time to filter available hours
         available_hours = [
-            (f'{hour:02d}:00', f'{hour:02d}:00') for hour in range(current_time.hour, 22)
+            (f'{hour:02d}:00', f'{hour:02d}:00') for hour in range(start_hour, 22)
         ]
+        print(available_hours)
     else:
         # If the selected date is in the future, all hours are available
         available_hours = [
@@ -65,10 +67,9 @@ def calculate_available_hours(selected_office, selected_date):
     for record in booked_records:
         booked_hours.add(record.start_time.hour)
 
-    # Generate hour choices excluding booked hours
-    available_hours = [
-        (f'{hour:02d}:00', f'{hour:02d}:00') for hour in range(8, 22) if hour not in booked_hours
-    ]
+    # Remove booked hours from available hours
+    for hour in booked_hours:
+        available_hours.remove((f'{hour:02d}:00', f'{hour:02d}:00'))
 
     return available_hours
 
