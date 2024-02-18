@@ -20,6 +20,28 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+# Therapist model
+class Therapist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    specialty = db.Column(db.String(100), nullable=False)
+    # Add other fields as needed, such as availability
+
+    def __repr__(self):
+        return f"Therapist('{self.name}', '{self.specialty}')"
+    
+# Appointment model
+class Appointment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    therapist_id = db.Column(db.Integer, db.ForeignKey('therapist.id'), nullable=False)
+    therapist = db.relationship('Therapist', backref=db.backref('appointments', lazy=True))
+    date = db.Column(db.Date, nullable=False)
+    time = db.Column(db.Time, nullable=False)
+    # Add other fields as needed, such as user_id for the person booking the appointment
+
+    def __repr__(self):
+        return f"Appointment('{self.therapist}', '{self.date}', '{self.time}')"
+
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     office = db.Column(db.String(20), nullable=False)

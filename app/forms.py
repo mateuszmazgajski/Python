@@ -1,11 +1,12 @@
 # app/forms.py
 from flask_wtf import FlaskForm
+from flask import current_app
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms import DateField, DateField, TimeField
 from wtforms.validators import DataRequired, InputRequired, EqualTo, Length
 from wtforms.widgets import Input, DateInput, TimeInput
 from datetime import date, datetime
-from app.models import Booking
+from app.models import Booking, Therapist, db
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -17,6 +18,28 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Sign Up')
+
+class AppointmentForm(FlaskForm):
+    hour_choices = [
+        (f'{hour:02d}:00', f'{hour:02d}:00') for hour in range(8, 22)
+    ]
+    therapist_choices = []
+    therapist = SelectField('Therapist', choices = therapist_choices, validators=[DataRequired()], coerce=str)
+    date = DateField('Date', validators=[DataRequired()], default=date.today(), render_kw={'min': date.today()})
+    start_time = SelectField('Select hour', choices=hour_choices, validators=[DataRequired()], coerce=str)
+    submit = SubmitField('Book Appointment')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.populate_therapist_choices()
+
+    def populate_therapist_choices(self):
+        therapist_choices = []
+        with current_app.app_context():
+            therapists = Therapist.query.all()
+            therapist_choices = [(f'{therapist.name} - {therapist.specialty}') for therapist in therapists]
+        self.therapist.choices = therapist_choices
+        print(self.therapist.choices)
 
 class BookingForm(FlaskForm):
     hour_choices = [
@@ -33,7 +56,6 @@ class BookingForm(FlaskForm):
         selected_office = self.office.data
         selected_date = self.date.data
         available_hours = calculate_available_hours(selected_office, selected_date)  # Adjust this to get available hours for the current date
-        #print("Available Hours:", available_hours)
 
         # Set choices for the start_time field
         self.start_time.choices = available_hours
@@ -72,6 +94,7 @@ def calculate_available_hours(selected_office, selected_date):
         available_hours.remove((f'{hour:02d}:00', f'{hour:02d}:00'))
 
     return available_hours
+
 
 
 

@@ -5,8 +5,8 @@ from flask import redirect, url_for
 from flask import jsonify, request
 from app.forms import calculate_available_hours
 from flask_login import login_user, login_required, logout_user, current_user
-from app.models import User, Booking
-from app.forms import LoginForm, BookingForm, RegistrationForm
+from app.models import User, Booking, Therapist
+from app.forms import LoginForm, BookingForm, RegistrationForm, AppointmentForm
 from datetime import datetime, date, time
 
 @app.route('/')
@@ -136,3 +136,18 @@ def get_available_hours():
 
     # Return the available hours as JSON
     return jsonify({'available_hours': available_hours})
+
+@app.route('/book_appointment', methods=['GET', 'POST'])
+def book_appointment():
+
+    # Create the appointment form
+    form = AppointmentForm()
+    if form.validate_on_submit():
+        # Process the form data and book the appointment
+        # Implement your logic here
+        
+        # Redirect to a success page or render a success message
+        pass
+        flash('Booking successful!', 'success')
+
+    return render_template('book_appointment.html', form=form)
